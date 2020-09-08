@@ -4,7 +4,8 @@ const { Schema } = mongoose
 const TeamSchema = new Schema({
     name: String,
     image: String,
-    points: Number
+    points: Number,
+    goals: Number
     });
 
 module.exports = mongoose.model('team', TeamSchema)

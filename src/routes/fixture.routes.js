@@ -25,7 +25,14 @@ router.post('', async (req, res) => {
     res.json({ status: 'fixture saved', fixture: fixtureObject });
 });
 
+router.post('/newTournament', async (req, res) => {
+    await Fixture.remove({}).exec()
+    await Team.remove({}).exec()
+    res.json({ status: 'New Tournament' });
+})
+
 router.post('/cuadrangular', async (req, res) => {
+    await Fixture.remove({}).exec()
     const teamlist = await Team.find({});
     let roundRobin = [];
     for (let i = 0; i < teamlist.length; i++) {
@@ -47,11 +54,37 @@ router.post('/cuadrangular', async (req, res) => {
 
 });
 
-// put team function
+// put score function
 router.put('/:id', async (req, res) => {
-    const team = castFixture(req.body);
-    await Team.findByIdAndUpdate(req.params.id, team);
-    res.json({ status: 'team updated' })
+    const scoreslist = castFixture(req.body);
+    //console.log(scoreslist);
+
+    await Fixture.findByIdAndUpdate(req.params.id, scoreslist);
+    const team1 = await Team.findOne({"_id":scoreslist.team1});
+    const team2 = await Team.findOne({"_id":scoreslist.team2});
+    team1.goals = parseInt(team1.goals, 10) + parseInt(scoreslist["score1"], 10);
+    team2.goals = parseInt(team2.goals, 10) + parseInt(scoreslist["score2"], 10);
+
+    if (scoreslist["score1"] > scoreslist["score2"]){
+        team1.points = team1.points + 3;
+
+    }else if (scoreslist["score1"] < scoreslist["score2"]){
+        team2.points = team2.points + 3;
+    }else{
+        team1.points = team1.points + 1;
+        team2.points = team2.points + 1;
+    }
+    await team1.save();
+    await team2.save();
+
+    res.json({ status: 'score updated' })
 });
+
+router.delete('/:id', async (req, res) => {
+    await Fixture.findByIdAndDelete(req.params.id);
+    res.json({ status: 'deleted fixture' })
+
+});
+
 
 module.exports = router;

@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Team = require('./../models/team')
 
-const castTeam = ({ name, points, image }) => {
-    return ({ name, points, image })
+const castTeam = ({ name, points, image, goals }) => {
+    return ({ name, points, image, goals })
 }
 
 // get team function
